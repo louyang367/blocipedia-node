@@ -1,0 +1,19 @@
+{
+  "name": "blocipedia-node",
+  "version": "1.0.0",
+  "description": "an application allows users to create, collaborate, and share wikis",
+  "main": "src/server.js",
+  "scripts": {
+    "test": "set NODE_ENV=test&&jasmine"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/louyang367/blocipedia-node.git"
+  },
+  "author": "Lu Ouyang",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/louyang367/blocipedia-node/issues"
+  },
+  "homepage": "https://github.com/louyang367/blocipedia-node#readme"
+}
