@@ -4,7 +4,8 @@
   "description": "an application allows users to create, collaborate, and share wikis",
   "main": "src/server.js",
   "scripts": {
-    "test": "set NODE_ENV=test&&jasmine"
+    "test": "set NODE_ENV=test&&jasmine",
+    "start": "node src/server.js"
   },
   "repository": {
     "type": "git",
@@ -15,5 +16,28 @@
   "bugs": {
     "url": "https://github.com/louyang367/blocipedia-node/issues"
   },
-  "homepage": "https://github.com/louyang367/blocipedia-node#readme"
+  "homepage": "https://github.com/louyang367/blocipedia-node#readme",
+  "devDependencies": {
+    "faker": "^4.1.0",
+    "jasmine": "^3.1.0",
+    "morgan": "^1.9.0",
+    "request": "^2.87.0"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.18.3",
+    "dotenv": "^6.0.0",
+    "ejs": "^2.6.1",
+    "express": "^4.16.3",
+    "express-flash": "0.0.2",
+    "express-session": "^1.15.6",
+    "express-validator": "^5.2.0",
+    "morgan": "^1.9.0",
+    "passport": "^0.4.0",
+    "passport-local": "^1.0.0",
+    "pg": "^7.4.3",
+    "pg-hstore": "^2.3.2",
+    "sequelize": "^4.38.0",
+    "sequelize-cli": "^4.0.0"
+  }
 }
