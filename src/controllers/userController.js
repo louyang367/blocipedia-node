@@ -18,7 +18,7 @@ module.exports = {
       if (err) {
         console.log(err);
         req.flash("error", [{ param: err.errors[0].type, msg: err.errors[0].message }]);
-        res.redirect(303, req.headers.referer);
+        res.redirect(req.headers.referer);
       } else {
 
         passport.authenticate("local")(req, res, () => {
@@ -51,6 +51,50 @@ module.exports = {
         })
       }
     });
+  },
+
+  loginForm(req, res, next){
+    res.render("users/login");
+  },
+
+  login(req, res, next){
+    // passport.authenticate("local", { 
+    //   failureRedirect: '/users/login', 
+    //   failureFlash: true,
+    //   successRedirect: '/',
+    //   successFlash: "You've successfully signed in!"
+    // });
+    passport.authenticate('local', function(err, user, info) {
+      if (err) { return next(err); }
+      if (!user) { 
+        req.flash("notice", info.message);
+        return res.redirect('/users/login'); 
+      }
+      req.logIn(user, function(err) {
+        if (err) { return next(err); }
+        req.flash("notice", "You've successfully signed in!");
+        return res.redirect('/');
+      });
+    })(req, res, next);
+  
+    // , (req, res, function () {
+    //   console.log('----------In login')
+    //   if(!req.user){
+    //     req.flash("notice", "Sign in failed. Please try again.")
+    //     //res.redirect(303,req.headers.referer);
+    //     res.redirect("/users/login");
+    //   } else {
+    //     req.flash("notice", "You've successfully signed in!");
+    //     res.redirect("/");
+    //   }
+    // });
+    //next();
+  },
+
+  logout(req, res, next){
+    req.logout();
+    req.flash("notice", "You've successfully logged out!");
+    res.redirect("/");
   }
 
 }
