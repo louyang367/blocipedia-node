@@ -2,7 +2,7 @@ const User = require("./models").User;
 const bcrypt = require("bcryptjs");
 
 module.exports = {
-  createUser(newUser, callback){
+  createUser(newUser, callback) {
 
     const salt = bcrypt.genSaltSync();
     const hashedPassword = bcrypt.hashSync(newUser.password, salt);
@@ -13,12 +13,43 @@ module.exports = {
       password: hashedPassword,
       role: User.STANDARD
     })
-    .then((user) => {
-      callback(null, user);
+      .then((user) => {
+        callback(null, user);
+      })
+      .catch((err) => {
+        callback(err);
+      })
+  },
+
+  updateUser(req, updatedUser, callback) {
+    if (!req.user) {
+      return callback("User not found");
+    }
+
+    return req.user.update(updatedUser, {
+      fields: Object.keys(updatedUser)
     })
-    .catch((err) => {
-      callback(err);
-    })
+      .then((user) => {
+        callback(null, user);
+      })
+      .catch((err) => {
+        callback(err);
+      });
+  },
+
+  upgradeDowngrade(req, newRole, callback) {
+
+    if (!req.user) {
+      return callback("User not found");
+    }
+
+    return req.user.update({ 'role': newRole })
+      .then((user) => {
+        callback(null, user);
+      })
+      .catch((err) => {
+        callback(err);
+      });
   }
 
 }

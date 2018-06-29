@@ -18,6 +18,15 @@
           <li class="nav-item">
             <a class="nav-link" href="/users/logout">log out</a>
           </li>
+          <% if(currentUser.role == 0) { %>
+            <li class="nav-item">
+              <a class="nav-link" href="/users/upgradeform">Upgrade to Premium</a>
+            </li>
+          <% } else if(currentUser.role == 1) { %>
+            <li class="nav-item">
+              <a class="nav-link" href="/users/downgradeform">Downgrade to Standard</a>
+            </li>
+          <% }%>
         <% } else { %>
           <li class="nav-item">
             <a class="nav-link" href="/users/signup">Sign up</a>
