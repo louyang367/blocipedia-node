@@ -11,16 +11,14 @@
     <main class="container">
       <% include ../static/partials/messages.ejs %>
 
-      <h1>Public Wikis</h1>
-      
+      <% if(authorizer._isAdmin()) { %>
+        <h1>All Private Wikis</h1>
+      <% } else { %>
+        <h1>My Private Wikis</h1>
+      <% } %>
+
       <% if(currentUser) { %>
         <a href="/wikis/new" class="btn btn-success">New Wiki</a>
-
-        <% if(authorizer._isAdmin()) { %>
-          <a href="/wikis/mywikis" class="btn btn-success">All Private Wikis</a>
-        <% } else if (authorizer._isPremium()) { %>
-          <a href="/wikis/mywikis" class="btn btn-success">My Private Wikis</a>
-        <% } %>
       <% } %>
    
       <ul class="list-group">

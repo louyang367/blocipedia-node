@@ -23,6 +23,14 @@
           <textarea rows="4" class="form-control" name="body" placeholder="Enter Post body"></textarea>
           <small class="text-muted" id="bodyHelp">body must be 10 or more characters in length.</small>
         </div>
+        <div class="checkbox">
+          <% if(authorizer._isPremium() || authorizer._isAdmin()) { %>
+            <label><input type="checkbox" name="private" value="true"> Private</label>
+          <% } else { %>
+            <label><input type="checkbox" name="private" value="true" disabled> Private</label>
+          <% } %>
+        </div>
+        <hr>
         <button type="submit" class="btn btn-primary">Submit</button>
       </form>
     </main>

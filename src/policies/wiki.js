@@ -2,23 +2,11 @@ const ApplicationPolicy = require('./application');
 
 module.exports = class Policy extends ApplicationPolicy {
  
-  new() {
-    return this._isAdmin();
+  setPrivate() {
+    return this._isAdmin() || (this._isPremium() && this._isOwner());
   }
 
-  create() {
-    return this.new();
-  }
-
-  edit() {
-    return this._isAdmin();
-  }
-
-  update() {
-    return this.edit();
-  }
-
-  destroy() {
-    return this.update();
+  setPublic() {
+    return this.setPrivate();
   }
 }

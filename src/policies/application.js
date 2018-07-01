@@ -1,3 +1,5 @@
+const User = require ("../db/models/").User;
+
 module.exports = class ApplicationPolicy {
 
   constructor(user, record) {
@@ -10,8 +12,11 @@ module.exports = class ApplicationPolicy {
   }
 
   _isAdmin() {
-    //return this.user && this.user.role == "admin";
-    return true;
+    return this.user && this.user.role == User.ADMIN;
+  }
+
+  _isPremium() {
+    return this.user && this.user.role == User.PREMIUM;
   }
 
   new() {
@@ -27,8 +32,7 @@ module.exports = class ApplicationPolicy {
   }
 
   edit() {
-    return this.new() &&
-      this.record && (this._isOwner() || this._isAdmin());
+    return true;
   }
 
   update() {
@@ -36,6 +40,6 @@ module.exports = class ApplicationPolicy {
   }
 
   destroy() {
-    return this.update();
+    return this._isOwner() || this._isAdmin();
   }
 }

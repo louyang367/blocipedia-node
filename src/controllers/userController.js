@@ -1,7 +1,8 @@
 const userQueries = require("../db/queries.users.js");
 const passport = require("passport");
-const sgMail = require('@sendgrid/mail');
 const User = require("../db/models").User;
+const Wiki = require("../db/models").Wiki;
+const sgMail = require('@sendgrid/mail');
 var stripe = require("stripe")("sk_test_T6XCxAzM3l0k8syNHsMEr9nJ");
 
 module.exports = {
@@ -100,13 +101,15 @@ module.exports = {
   },
 
   upgradeForm(req, res, next) {
-    res.render("users/upgrade");
+    if (!req.user) res.redirect('/');
+    else res.render("users/upgrade");
   },
 
   upgrade(req, res, next) {
     if (!req.user) {
       req.flash("notice", "You have to be logged in to upgrade.");
       res.redirect("/users/login");
+      return;
     }
 
     const token = req.body.stripeToken;
@@ -121,10 +124,11 @@ module.exports = {
         req.flash("error", `${err.type} ${err.code} ${err.message}`);
         res.redirect(res.statusCode, "/");
       } else {
-        userQueries.upgradeDowngrade(req, User.PREMIUM, (err, user) => {
+        userQueries.updateUser(req, {role: User.PREMIUM}, (err, user) => {
 
           if (err || user == null) {
             if (err) console.log(err)
+            req.flash("notice", "Error upgrading to standard account.");
             res.redirect(404, "/");
           } else {
             req.flash("notice", "You are upgraded to premium account.");
@@ -138,19 +142,31 @@ module.exports = {
   },
 
   downgradeForm(req, res, next) {
-    res.render("users/downgrade");
+    if (!req.user) res.redirect('/');
+    else res.render("users/downgrade", {referer: req.headers.referer});
   },
 
   downgrade(req, res, next) {
     if (!req.user) {
       req.flash("notice", "You have to be logged in to downgrade.");
       res.redirect("/users/login");
+      return;
     }
 
-    userQueries.upgradeDowngrade(req, User.STANDARD, (err, user) => {
+    Wiki.all({where: {userId: req.user.id, private: true}})
+    .then((wikis) => {
+      wikis.map(wiki=>{
+        wiki.update({private: false})
+      })
+    })
+    .catch((err) => {
+      console.log(err);
+    })
 
+    userQueries.updateUser(req, {role: User.STANDARD}, (err, user) => {
       if (err || user == null) {
         if (err) console.log(err)
+        req.flash("notice", "Error downgrading to standard account.");
         res.redirect(404, "/");
       } else {
         req.flash("notice", "You are downgraded to standard account.");

@@ -37,19 +37,4 @@ module.exports = {
       });
   },
 
-  upgradeDowngrade(req, newRole, callback) {
-
-    if (!req.user) {
-      return callback("User not found");
-    }
-
-    return req.user.update({ 'role': newRole })
-      .then((user) => {
-        callback(null, user);
-      })
-      .catch((err) => {
-        callback(err);
-      });
-  }
-
 }

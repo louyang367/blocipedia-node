@@ -9,19 +9,35 @@
   <% include ../static/partials/navbar.ejs %>
 
     <main class="container">
+
       <% include ../static/partials/messages.ejs %>
 
-      <h1>
+      <h1> 
         <%= wiki.title %>
+        <% if(wiki.private) { %>
+          <span class="text-danger small" >(Private)</span>
+        <% } %>
       </h1>
 
-      <a href="/wikis/<%= wiki.id %>/edit" class="btn btn-warning">Edit</a>
       <% if(currentUser) { %>
+        <a href="/wikis/<%= wiki.id %>/edit" class="btn btn-warning">Edit</a>
+
         <a href="/wikis/new" class="btn btn-success">New Wiki</a>
-        <% if(currentUser.isAdmin()) { %>
+
+        <% if(authorizer._isAdmin() || authorizer._isOwner()) { %>
           <form style="display:initial" action="/wikis/<%= wiki.id %>/destroy" method="post">
             <button type="submit" class="btn btn-danger">Delete</button>
           </form>
+
+          <% if(wiki.private) { %>
+            <form style="display:initial" action="/wikis/<%= wiki.id %>/setpublic" method="post">
+              <button type="submit" class="btn btn-danger">Set Public</button>
+            </form>
+          <% } else if (authorizer._isPremium() || authorizer._isAdmin()) { %>
+            <form style="display:initial" action="/wikis/<%= wiki.id %>/setprivate" method="post">
+              <button type="submit" class="btn btn-success">Set Private</button>
+            </form>
+          <% } %>
         <% } %>
       <% } %>
 
