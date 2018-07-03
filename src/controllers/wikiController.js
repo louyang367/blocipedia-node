@@ -1,5 +1,6 @@
 const wikiQueries = require("../db/queries.wikis");
 const Authorizer = require("../policies/wiki");
+const markdown = require( "markdown" ).markdown;
 
 module.exports = {
   index(req, res, next) {
@@ -72,7 +73,7 @@ module.exports = {
         req.flash("notice", "Error retrieving wiki.");
         res.redirect(404, "/");
       } else {
-        res.render("wikis/show", { wiki: wiki, authorizer: new Authorizer(req.user, wiki) });
+        res.render("wikis/show", { wiki: wiki, markdown: markdown, authorizer: new Authorizer(req.user, wiki) });
       }
     });
   },
@@ -115,7 +116,7 @@ module.exports = {
         if (authorized) {
           res.render("wikis/edit", { wiki });
         } else {
-          req.flash("notice", "You are not authorized to delete.");
+          req.flash("notice", "You are not authorized to edit.");
           res.redirect(`/wikis/${req.params.id}`)
         }
       }

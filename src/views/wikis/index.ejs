@@ -17,9 +17,9 @@
         <a href="/wikis/new" class="btn btn-success">New Wiki</a>
 
         <% if(authorizer._isAdmin()) { %>
-          <a href="/wikis/mywikis" class="btn btn-success">All Private Wikis</a>
+          <a href="/wikis/mywikis" class="btn btn-primary">All Private Wikis</a>
         <% } else if (authorizer._isPremium()) { %>
-          <a href="/wikis/mywikis" class="btn btn-success">My Private Wikis</a>
+          <a href="/wikis/mywikis" class="btn btn-primary">My Private Wikis</a>
         <% } %>
       <% } %>
    

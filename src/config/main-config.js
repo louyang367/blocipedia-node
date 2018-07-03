@@ -24,6 +24,8 @@ module.exports = {
     passportConfig.init(app);
 
     app.use(express.static(path.join(__dirname, "..", "assets")));
+    app.use('/scripts', express.static(path.join(__dirname, "../..", '/node_modules')));
+
     app.use((req,res,next) => {
       res.locals.currentUser = req.user;
       next();

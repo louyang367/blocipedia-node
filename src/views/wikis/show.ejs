@@ -12,13 +12,7 @@
 
       <% include ../static/partials/messages.ejs %>
 
-      <h1> 
-        <%= wiki.title %>
-        <% if(wiki.private) { %>
-          <span class="text-danger small" >(Private)</span>
-        <% } %>
-      </h1>
-
+      <hr>
       <% if(currentUser) { %>
         <a href="/wikis/<%= wiki.id %>/edit" class="btn btn-warning">Edit</a>
 
@@ -35,18 +29,25 @@
             </form>
           <% } else if (authorizer._isPremium() || authorizer._isAdmin()) { %>
             <form style="display:initial" action="/wikis/<%= wiki.id %>/setprivate" method="post">
-              <button type="submit" class="btn btn-success">Set Private</button>
+              <button type="submit" class ="btn btn-success">Set Private</button>
             </form>
           <% } %>
         <% } %>
       <% } %>
 
-              <p>
-                <%= wiki.body %>
-              </p>
-              <small class="card-subtitle mb-2 text-muted">
-                by <%= wiki.User.name %> on <%= wiki.createdAt %>
-              </small>
+      <hr>
+      <div class="card border-primary mb-3">
+        <div class="card-header bg-primary text-white" style="font-size:x-large"><%= wiki.title %>
+         <% if(wiki.private) { %>
+           <span class="badge badge-warning" style="font-size:small">Private</span>
+          <% } %>
+        </div>
+        <div class="card-body"> <%- markdown.toHTML(wiki.body) %> </div>
+      </div>
+
+      <small class="card-subtitle mb-2 text-muted">
+        by <%= wiki.User.name %> on <%= wiki.createdAt %>
+      </small>
 
     </main>
 
