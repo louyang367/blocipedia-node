@@ -1,8 +1,9 @@
 const Wiki = require("./models").Wiki;
 const User = require("./models").User;
+const UserWiki = require("./models").UserWiki;
 
 module.exports = {
-  getAllWikis(callback) {
+  getPublicWikis(callback) {
     return Wiki.all({where: {private: false}})
       .then((wikis) => {
         callback(null, wikis);
@@ -12,12 +13,15 @@ module.exports = {
       })
   },
 
-  getMyWikis(user, callback) {
+  getPrivateWikis(user, callback) {
     let option={};
-    if (user.role==User.ADMIN) option = {private: true};
-    else option = {userId: user.id, private: true};
+    if (user.isAdmin()) option = {where: {private: true}};
+    else option = { 
+      where: {userId: user.id, private: true},
+      include: [{model: User, as: "collaborators"}] 
+    };
 
-    return Wiki.all({where: option})
+    return Wiki.all(option)
       .then((wikis) => {
         callback(null, wikis);
       })
@@ -43,10 +47,12 @@ module.exports = {
 
   getWiki(id, callback) {
     return Wiki.findById(id, {
-      include: [{
-        model: User,
-        as: "User"
-      }]
+      include: [
+        {model: User,
+         as: "creator"}, 
+        {model: User,
+         as: "collaborators"}
+        ]
     })
       .then((wiki) => {
         callback(null, wiki);
@@ -76,6 +82,24 @@ module.exports = {
       .catch((err) => {
         callback(err);
       });
-  }
+  },
 
+  updateCollaborators(wiki, updatedCollaborators, callback){
+    return wiki.setCollaborators(updatedCollaborators)
+      .then((result) => {
+      callback(null, result);
+    }).catch((err) => {
+      callback(err);
+    });
+  },
+
+  deleteCollaborators(wiki, callback){
+    return wiki.removeCollaborators(wiki.collaborators.map(val=>{return val.id}))
+      .then((count) => {
+        callback(null, count);
+      })
+      .catch((err) => {
+        callback(err);
+      });
+  }
 }

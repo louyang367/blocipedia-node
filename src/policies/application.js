@@ -1,4 +1,5 @@
 const User = require ("../db/models/").User;
+const wikiQueries = require("../db/queries.wikis");
 
 module.exports = class ApplicationPolicy {
 
@@ -8,7 +9,7 @@ module.exports = class ApplicationPolicy {
   }
 
   _isOwner() {
-    return this.record && (this.record.userId == this.user.id);
+    return this.record && this.user && (this.record.userId == this.user.id);
   }
 
   _isAdmin() {
@@ -17,6 +18,12 @@ module.exports = class ApplicationPolicy {
 
   _isPremium() {
     return this.user && this.user.role == User.PREMIUM;
+  }
+
+  _isCollaborator() {
+    if (!this.record.collaborators) return false;
+    if (this.record.collaborators.map(rec=>{return rec.id}).indexOf(this.user.id) >= 0) return true;
+    else return false;
   }
 
   new() {
@@ -28,11 +35,11 @@ module.exports = class ApplicationPolicy {
   }
 
   show() {
-    return true;
+    return !this.record.private || _isCollaborator();
   }
 
   edit() {
-    return true;
+    return this._isOwner() || this._isAdmin() || this._isCollaborator();
   }
 
   update() {

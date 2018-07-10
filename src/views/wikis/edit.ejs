@@ -50,6 +50,50 @@
         new Editor($("title-input"), $("title-preview"));
       </script> 
 
+      <% if(wiki.private && users!='none') { %>
+        <hr>
+        <h3>Add collaborators</h3>
+        <p>Showing all users</p>
+
+        <form action="/wikis/<%= wiki.id %>/share" method="post">
+
+          <table class="table table-bordered table-dark table-striped">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Access</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% users.filter(user=>user.id!=currentUser.id).forEach(user => { %>
+                <tr>
+                  <td><%= user.name %></td>
+                  <td><%= user.email %></td>
+                  <td>
+                    <% if ( authorizer.setCollaborators() ) { %>
+                      <% if (collaborators.indexOf(user.id)>=0) { %>
+                        <input type="checkbox" name=<%=user.id%> value="true" checked>
+                      <% } else { %>
+                         <input type="checkbox" name=<%=user.id%> value="true">
+                      <% } %>
+                    <% } else { %>
+                      <% if (collaborators.indexOf(user.id)>=0) { %>
+                        <input type="checkbox" name=<%=user.id%> value="true" checked disabled>
+                      <% } else { %>
+                         <input type="checkbox" name=<%=user.id%> value="true" disabled>
+                      <% } %>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+
+          <button type="submit" class="btn btn-success">Share wiki</button>
+        </form>
+      <% } %>
+
     </main>
 
     <% include ../static/partials/baseScripts.ejs %>

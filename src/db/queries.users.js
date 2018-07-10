@@ -37,4 +37,27 @@ module.exports = {
       });
   },
 
+  getAllUsers(callback) {
+    return User.all()
+      .then((users) => {
+        callback(null, users);
+      })
+      .catch((err) => {
+        callback(err);
+      })
+  },
+
+  getSharedWikis(user, callback){
+    return user.getSharedWikis({include:[
+      {model: User,
+      as: "creator"}
+    ]})
+      .then((wikis) => {
+        callback(null, wikis);
+      })
+      .catch((err) => {
+        callback(err);
+      });
+  },
+
 }

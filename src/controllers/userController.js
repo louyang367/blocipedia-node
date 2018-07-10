@@ -1,4 +1,5 @@
 const userQueries = require("../db/queries.users.js");
+const wikiQueries = require("../db/queries.wikis.js");
 const passport = require("passport");
 const User = require("../db/models").User;
 const Wiki = require("../db/models").Wiki;
@@ -25,7 +26,7 @@ module.exports = {
       } else {
 
         passport.authenticate("local")(req, res, () => {
-          req.flash("notice", "You've successfully signed in!");
+          req.flash("notice", "You're successfully logged in!");
 
           //sendgrid
           sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -120,14 +121,14 @@ module.exports = {
       source: token,
     }, (err, result) => {
       if (err) {
-        console.log(err)
+        console.log(err);
         req.flash("error", `${err.type} ${err.code} ${err.message}`);
         res.redirect(res.statusCode, "/");
       } else {
-        userQueries.updateUser(req, {role: User.PREMIUM}, (err, user) => {
+        userQueries.updateUser(req, { role: User.PREMIUM }, (err, user) => {
 
           if (err || user == null) {
-            if (err) console.log(err)
+            if (err) console.log(err);
             req.flash("notice", "Error upgrading to standard account.");
             res.redirect(404, "/");
           } else {
@@ -143,7 +144,7 @@ module.exports = {
 
   downgradeForm(req, res, next) {
     if (!req.user) res.redirect('/');
-    else res.render("users/downgrade", {referer: req.headers.referer});
+    else res.render("users/downgrade", { referer: req.headers.referer });
   },
 
   downgrade(req, res, next) {
@@ -152,27 +153,52 @@ module.exports = {
       res.redirect("/users/login");
       return;
     }
+    let proms = [], i = 0;
 
-    Wiki.all({where: {userId: req.user.id, private: true}})
-    .then((wikis) => {
-      wikis.map(wiki=>{
-        wiki.update({private: false})
+    wikiQueries.getPrivateWikis(req.user, (err, wikis) => {
+      if (err) {
+        console.log(err);
+        req.flash("notice", "Error retrieving private wikis.");
+        res.redirect(req.headers.referer);
+        return;
+      }
+
+      wikis.forEach(wiki => {
+        /* make all private wikis public */
+        proms[i++] = wikiQueries.updateWiki(wiki, { private: false }, (err, wiki) => {
+          if (err) {
+            console.log(err);
+            req.flash("notice", "Error setting private wikis public.");
+            res.redirect(req.headers.referer);
+            return;
+          }
+        })
+        /* remove all collaborators */
+        proms[i++] = wikiQueries.deleteCollaborators(wiki, (err, count) => {
+          console.log(`${count} collaborators removed from wiki ${wiki.id}`);
+          if (err) {
+            console.log(err);
+            req.flash("notice", "Deleting collaborators failed!");
+            res.redirect("/");
+            return;
+          }
+        })
+
+      })
+
+      Promise.all(proms).then((results) => {
+        /* update user role */
+        userQueries.updateUser(req, { role: User.STANDARD }, (err, user) => {
+          if (err || user == null) {
+            if (err) console.log(err);
+            req.flash("notice", "Error downgrading to standard account.");
+            res.redirect("/");
+          } else {
+            req.flash("notice", "You are downgraded to standard account.");
+            res.redirect("/");
+          }
+        });
       })
     })
-    .catch((err) => {
-      console.log(err);
-    })
-
-    userQueries.updateUser(req, {role: User.STANDARD}, (err, user) => {
-      if (err || user == null) {
-        if (err) console.log(err)
-        req.flash("notice", "Error downgrading to standard account.");
-        res.redirect(404, "/");
-      } else {
-        req.flash("notice", "You are downgraded to standard account.");
-        res.redirect("/");
-      }
-    });
   }
-
 }

@@ -16,17 +16,19 @@
       <% if(currentUser) { %>
         <a href="/wikis/new" class="btn btn-success">New Wiki</a>
 
-        <% if(authorizer._isAdmin()) { %>
+        <% if(currentUser.isAdmin()) { %>
           <a href="/wikis/mywikis" class="btn btn-primary">All Private Wikis</a>
-        <% } else if (authorizer._isPremium()) { %>
+        <% } else if (currentUser.isPremium()) { %>
           <a href="/wikis/mywikis" class="btn btn-primary">My Private Wikis</a>
         <% } %>
+
+        <a href="/wikis/sharedwikis" class="btn btn-primary">Collaborative Wikis</a>
       <% } %>
    
       <ul class="list-group">
         <% wikis.forEach((wiki) => { %>
           <li class="list-group-item">
-            <a href="/wikis/<%= wiki.id %>"> <%= wiki.title %> </a>
+            <a href="/wikis/<%= wiki.id %>"> <%- markdown.toHTML(wiki.title) %> </a>
           </li>
         <% }) %>
       </ul>
